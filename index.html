@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ProcureTrack Dashboard</title>
+<meta name="description" content="Offline-first procurement, project progress and issue tracking hub for SCADA engineering.">
+<meta name="theme-color" content="#00B4D8">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ProcureTrack">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="topbar" role="banner">
+  <div class="brand"><img src="assets/logo.svg" alt="" width="28" height="28"><span>ProcureTrack</span></div>
+  <span class="badge company">Al Gurg Automation &amp; Controls &bull; SCADA Engineering</span>
+  <div class="search"><input id="gsearch" type="search" placeholder="Global search..." aria-label="Global search" autocomplete="off"><kbd>Ctrl+K</kbd><div id="gresults" class="results hidden"></div></div>
+  <span class="pill" id="net-pill" title="Connectivity"><span class="dot"></span><span id="net-label">Online</span></span>
+  <span class="pill" id="quota-pill" title="Storage used">...</span>
+  <button class="btn hidden" id="install-btn">Install App</button>
+  <button class="btn primary" id="q-po">+ New PO</button>
+  <button class="btn" id="q-issue">+ Log Issue</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Main navigation">
+    <button class="nav active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Command Center</span></button>
+    <button class="nav" data-view="procurement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span>Procurement</span></button>
+    <button class="nav" data-view="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>Progress</span></button>
+    <button class="nav" data-view="issues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><span>Issues</span></button>
+    <button class="nav" data-view="vendors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 20c0-3-2-5-5-5"/></svg><span>Vendors</span></button>
+    <button class="nav" data-view="vault"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Vault</span></button>
+  </nav>
+  <main id="view" tabindex="-1" aria-live="polite"><p class="muted">Loading local database...</p></main>
+</div>
+<div class="modal-bg" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <form class="modal" id="modal-form"><h2 id="modal-title"></h2><div class="form" id="modal-body"></div>
+    <div class="modal-actions"><button type="button" class="btn danger hidden" id="modal-del">Delete</button><span style="flex:1"></span><button type="button" class="btn" id="modal-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>
+</div>
+<div class="banner" id="update-banner" role="alert"><span>A new version is available.</span><button class="btn sm" id="update-now">Update now</button></div>
+<noscript><p style="padding:20px">ProcureTrack requires JavaScript.</p></noscript>
+<script src="js/db.js"></script>
+<script src="js/seed.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
