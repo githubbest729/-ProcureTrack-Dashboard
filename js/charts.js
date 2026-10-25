@@ -43,29 +43,37 @@
     el.innerHTML = s + '</svg>'; tip(el);
   }
 
-  /* Grouped progress bars: planned vs actual */
+  /* Planned vs actual bars; project title on its own line above the bars */
   function health(el, data) {
-    const W = 560, rowH = 44, H = data.length * rowH + 20, lab = 170;
+    const W = 560, rowH = 62, H = data.length * rowH + 22;
     let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Project schedule health">`;
     data.forEach((d, i) => {
-      const y = i * rowH + 8, bw = W - lab - 50;
+      const y = i * rowH + 4, bw = W - 54;
       const col = d.actual >= d.planned - 5 ? '#2A9D8F' : d.actual >= d.planned - 15 ? '#F4A261' : '#E76F51';
-      s += `<text x="0" y="${y + 14}" class="ch-lab">${esc(d.label)}</text>`;
-      s += `<rect x="${lab}" y="${y}" width="${bw}" height="10" rx="5" fill="rgba(255,255,255,.08)"/>`;
-      s += `<rect x="${lab}" y="${y}" width="${bw * d.planned / 100}" height="10" rx="5" fill="rgba(255,255,255,.22)" data-tip="${esc(d.label)} planned ${d.planned}%"/>`;
-      s += `<rect x="${lab}" y="${y + 14}" width="${bw}" height="10" rx="5" fill="rgba(255,255,255,.08)"/>`;
-      s += `<rect x="${lab}" y="${y + 14}" width="${Math.max(2, bw * d.actual / 100)}" height="10" rx="5" fill="${col}" data-tip="${esc(d.label)} actual ${d.actual}%"/>`;
-      s += `<text x="${lab + bw + 6}" y="${y + 22}" class="ch-val">${d.actual}%</text>`;
+      s += `<text x="0" y="${y + 12}" class="ch-name">${esc(d.label)}</text>`;
+      s += `<rect x="0" y="${y + 20}" width="${bw}" height="10" rx="5" class="ch-track"/>`;
+      s += `<rect x="0" y="${y + 20}" width="${Math.max(2, bw * d.planned / 100)}" height="10" rx="5" class="ch-plan" data-tip="${esc(d.label)} planned ${d.planned}%"/>`;
+      s += `<rect x="0" y="${y + 35}" width="${bw}" height="10" rx="5" class="ch-track"/>`;
+      s += `<rect x="0" y="${y + 35}" width="${Math.max(2, bw * d.actual / 100)}" height="10" rx="5" fill="${col}" data-tip="${esc(d.label)} actual ${d.actual}%"/>`;
+      s += `<text x="${bw + 6}" y="${y + 27}" class="ch-lab">${d.planned}%</text><text x="${bw + 6}" y="${y + 43}" class="ch-val">${d.actual}%</text>`;
     });
-    s += `<text x="${lab}" y="${H - 2}" class="ch-lab">Top bar: planned | Bottom bar: actual</text>`;
+    s += `<text x="0" y="${H - 4}" class="ch-lab">Top bar: planned  |  Bottom bar: actual</text>`;
     el.innerHTML = s + '</svg>'; tip(el);
   }
 
-  /* Storage meter gauge */
-  function meter(el, pct) {
-    const p = Math.min(100, Math.max(0, pct)), w = 300;
-    el.innerHTML = `<svg viewBox="0 0 ${w} 22" width="100%" role="img" aria-label="Storage used ${p.toFixed(2)} percent"><rect width="${w}" height="14" y="4" rx="7" fill="rgba(255,255,255,.1)"/><rect width="${Math.max(3, w * p / 100)}" height="14" y="4" rx="7" fill="${p > 80 ? '#E76F51' : '#00B4D8'}"/></svg>`;
+  /* Multi-segment stacked telemetry bar: segs=[{label,value,color}] */
+  function stack(el, segs) {
+    const tot = segs.reduce((a, b) => a + b.value, 0) || 1;
+    el.innerHTML = '<div class="stackbar" role="img" aria-label="Storage distribution by store">' + segs.map(g =>
+      `<span style="flex:${Math.max(g.value, tot * 0.006)};background:${g.color}" data-tip="${esc(g.label)}"></span>`).join('') + '</div>';
+    tip(el);
   }
 
-  global.Charts = { hbar, donut, health, meter, PALETTE };
+  /* Simple single-value gauge */
+  function meter(el, pct) {
+    const p = Math.min(100, Math.max(0, pct)), w = 300;
+    el.innerHTML = `<svg viewBox="0 0 ${w} 22" width="100%" role="img" aria-label="Storage used ${p.toFixed(2)} percent"><rect width="${w}" height="14" y="4" rx="7" fill="rgba(128,128,128,.25)"/><rect width="${Math.max(3, w * p / 100)}" height="14" y="4" rx="7" fill="${p > 80 ? '#E76F51' : '#00B4D8'}"/></svg>`;
+  }
+
+  global.Charts = { hbar, donut, health, stack, meter, PALETTE };
 })(window);

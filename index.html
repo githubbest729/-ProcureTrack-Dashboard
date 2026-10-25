@@ -18,6 +18,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="css/styles.css">
+<script>try{var t=localStorage.getItem("pt-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 </head>
 <body>
 <header class="topbar" role="banner">
@@ -29,6 +30,8 @@
   <button class="btn hidden" id="install-btn">Install App</button>
   <button class="btn primary" id="q-po">+ New PO</button>
   <button class="btn" id="q-issue">+ Log Issue</button>
+  <button class="btn icon" id="help-btn" title="Help &amp; Guide (G)" aria-label="Help and guide">?</button>
+  <button class="btn icon" id="settings-btn" title="Quick settings" aria-label="Open settings drawer">&#9881;</button>
 </header>
 <div class="layout">
   <nav class="sidebar" aria-label="Main navigation">
@@ -38,18 +41,24 @@
     <button class="nav" data-view="issues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><span>Issues</span></button>
     <button class="nav" data-view="vendors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 20c0-3-2-5-5-5"/></svg><span>Vendors</span></button>
     <button class="nav" data-view="vault"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Vault</span></button>
+    <span class="nav-gap"></span>
+    <button class="nav" data-view="guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12a4 4 0 014 4v12H8a4 4 0 01-4-4z"/><path d="M8 8h8M8 12h8"/></svg><span>Guide &amp; SOP</span></button>
+    <button class="nav" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Settings</span></button>
   </nav>
   <main id="view" tabindex="-1" aria-live="polite"><p class="muted">Loading local database...</p></main>
 </div>
 <div class="modal-bg" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <form class="modal" id="modal-form"><h2 id="modal-title"></h2><div class="form" id="modal-body"></div>
-    <div class="modal-actions"><button type="button" class="btn danger hidden" id="modal-del">Delete</button><span style="flex:1"></span><button type="button" class="btn" id="modal-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>
+    <div class="modal-actions"><button type="button" class="btn danger hidden" id="modal-del">Delete</button><span style="flex:1"></span><button type="button" class="btn" id="modal-cancel">Cancel</button><button type="submit" class="btn primary" id="modal-save">Save</button></div></form>
 </div>
+<div class="drawer-bg" id="drawer-bg"></div>
+<aside class="drawer" id="drawer" aria-label="Quick settings" aria-hidden="true"><div class="drawer-head"><h2>Settings</h2><button class="btn sm" id="drawer-close" aria-label="Close settings">&#10005;</button></div><div id="drawer-body"></div></aside>
 <div class="banner" id="update-banner" role="alert"><span>A new version is available.</span><button class="btn sm" id="update-now">Update now</button></div>
 <noscript><p style="padding:20px">ProcureTrack requires JavaScript.</p></noscript>
 <script src="js/db.js"></script>
 <script src="js/seed.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/tour.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

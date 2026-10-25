@@ -2,7 +2,7 @@
 (function (global) {
   'use strict';
   const DB_NAME = 'ProcureTrackDB';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
   const STORES = {
     projects: { keyPath: 'id', indexes: ['projectCode', 'status', 'client', 'manager', 'updatedAt'] },
     procurement_items: { keyPath: 'id', indexes: ['projectId', 'poNumber', 'prNumber', 'vendorId', 'category', 'status', 'expectedDelivery', 'fiscalYear', ['projectId_status', ['projectId', 'status']]] },
@@ -10,7 +10,8 @@
     issues: { keyPath: 'id', indexes: ['projectId', 'poNumber', 'severity', 'status', 'assignedTo', 'createdAt'] },
     milestones: { keyPath: 'id', indexes: ['projectId', 'phase', 'status', 'dueDate', ['projectId_phase', ['projectId', 'phase']]] },
     audit_logs: { keyPath: 'id', autoIncrement: true, indexes: ['timestamp', 'entityType', 'action', 'fiscalYear'] },
-    archives: { keyPath: 'id', indexes: ['fiscalYear', 'createdAt'] }
+    archives: { keyPath: 'id', indexes: ['fiscalYear', 'createdAt'] },
+    settings: { keyPath: 'key', indexes: [] }
   };
   const STORE_NAMES = Object.keys(STORES);
   let dbp = null;
@@ -74,9 +75,15 @@
 
   function summarize(r) { return r.name || r.title || r.description || r.projectCode || r.poNumber || r.phase || r.id || ''; }
 
+  let auditEnabled = true, auditUser = 'SCADA Engineer';
+  const ALWAYS_AUDIT = ['IMPORT', 'EXPORT', 'ARCHIVE', 'SEED', 'SETTINGS'];
+  function setAuditEnabled(v) { auditEnabled = !!v; }
+  function setUser(n) { auditUser = n || 'SCADA Engineer'; }
+
   async function audit(action, entityType, entityId, detail) {
+    if (!auditEnabled && !ALWAYS_AUDIT.includes(action)) return;
     const db = await open();
-    const rec = { timestamp: new Date().toISOString(), action, entityType, entityId: String(entityId), detail: String(detail || '').slice(0, 200), fiscalYear: fiscalYear(), user: 'SCADA Engineer' };
+    const rec = { timestamp: new Date().toISOString(), action, entityType, entityId: String(entityId), detail: String(detail || '').slice(0, 200), fiscalYear: fiscalYear(), user: auditUser };
     const tx = db.transaction('audit_logs', 'readwrite');
     tx.objectStore('audit_logs').add(rec);
     await txDone(tx);
@@ -208,7 +215,8 @@
     const avg = total ? Math.max(usage / total, 300) : 1500;
     const perYear = avg * 80 * 365;
     const remainingYears = quota && perYear ? Math.max(0, (quota - usage) / perYear) : 0;
-    return { counts, total, usage, quota, pct: quota ? usage / quota * 100 : 0, persisted, remainingYears };
+    const sizes = await storeSizes(counts);
+    return { sizes, counts, total, usage, quota, pct: quota ? usage / quota * 100 : 0, persisted, remainingYears };
   }
 
   async function requestPersistence() {
@@ -221,5 +229,32 @@
     return [cols.map(c => esc(c.label)).join(',')].concat(rows.map(r => cols.map(c => esc(typeof c.get === 'function' ? c.get(r) : r[c.key])).join(','))).join('\r\n');
   }
 
-  global.DB = { STORE_NAMES, open, get, getAll, count, getByIndex, put, remove, audit, bulkPut, query, dump, validateDump, importDump, clearAll, archiveFiscalYear, searchArchives, storageStats, requestPersistence, toCSV, uid, fiscalYear };
+  async function setSetting(key, value) {
+    const db = await open();
+    const tx = db.transaction('settings', 'readwrite');
+    tx.objectStore('settings').put({ key, value });
+    await txDone(tx);
+  }
+  async function getSetting(key, fallback) { const r = await get('settings', key); return r ? r.value : fallback; }
+
+  /* Estimated bytes per store (sampled) for the telemetry bar */
+  async function storeSizes(counts) {
+    const out = {}; const db = await open();
+    for (const s of STORE_NAMES) {
+      const n = counts[s] || 0; if (!n) { out[s] = 0; continue; }
+      const sample = await wrap(db.transaction(s).objectStore(s).getAll(null, 100));
+      let bytes = 0;
+      for (const r of sample) {
+        try {
+          let b = JSON.stringify(r, (k, v) => (v instanceof ArrayBuffer ? undefined : v)).length;
+          if (r.payload instanceof ArrayBuffer) b += r.payload.byteLength;
+          bytes += b;
+        } catch (e) { bytes += 400; }
+      }
+      out[s] = Math.round(bytes / sample.length * n);
+    }
+    return out;
+  }
+
+  global.DB = { setSetting, getSetting, setAuditEnabled, setUser, storeSizes, STORE_NAMES, open, get, getAll, count, getByIndex, put, remove, audit, bulkPut, query, dump, validateDump, importDump, clearAll, archiveFiscalYear, searchArchives, storageStats, requestPersistence, toCSV, uid, fiscalYear };
 })(window);

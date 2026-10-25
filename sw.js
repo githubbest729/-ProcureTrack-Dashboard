@@ -1,9 +1,9 @@
 /* ProcureTrack service worker */
-const STATIC_CACHE = 'procuretrack-static-v1';
-const DYNAMIC_CACHE = 'procuretrack-dynamic-v1';
+const STATIC_CACHE = 'procuretrack-static-v2';
+const DYNAMIC_CACHE = 'procuretrack-dynamic-v2';
 const SHELL = [
   './', './index.html', './offline.html', './manifest.webmanifest',
-  './css/styles.css', './js/db.js', './js/seed.js', './js/charts.js', './js/app.js',
+  './css/styles.css', './js/db.js', './js/seed.js', './js/charts.js', './js/tour.js', './js/app.js',
   './assets/logo.svg', './favicon.svg', './favicon.ico', './apple-touch-icon.png',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-192.png', './icons/icon-maskable-512.png',
   './icons/favicon-16x16.png', './icons/favicon-32x32.png'
